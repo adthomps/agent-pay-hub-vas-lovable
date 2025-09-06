@@ -70,50 +70,56 @@ export function InvoicesTable() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
+                  <TableHead className="hidden sm:table-cell">ID</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Customer</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Due Date</TableHead>
+                  <TableHead className="hidden md:table-cell">Status</TableHead>
+                  <TableHead className="hidden lg:table-cell">Due Date</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {invoices.map((invoice) => (
                   <TableRow key={invoice.id}>
-                    <TableCell className="font-medium font-mono text-sm">
+                    <TableCell className="font-medium font-mono text-xs hidden sm:table-cell">
                       {invoice.id}
                     </TableCell>
                     <TableCell className="font-medium">
+                      <div className="sm:hidden text-xs text-muted-foreground mb-1">
+                        {invoice.id}
+                      </div>
                       {invoice.currency} {invoice.amount.toFixed(2)}
                     </TableCell>
                     <TableCell>
                       <div>
                         {invoice.name && (
-                          <div className="font-medium">{invoice.name}</div>
+                          <div className="font-medium text-sm">{invoice.name}</div>
                         )}
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           {invoice.email}
+                        </div>
+                        <div className="md:hidden mt-1">
+                          <StatusBadge status={invoice.status} />
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <StatusBadge status={invoice.status} />
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-xs hidden lg:table-cell">
                       {new Date(invoice.dueDate).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1 sm:gap-2">
                         {invoice.status === "draft" && (
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => sendInvoice(invoice.id)}
-                            className="hover:bg-primary/5"
+                            className="hover:bg-primary/5 w-full sm:w-auto text-xs"
                           >
-                            <Send className="w-3 h-3 mr-1" />
-                            Send
+                            <Send className="w-3 h-3 sm:mr-1" />
+                            <span className="hidden sm:inline">Send</span>
                           </Button>
                         )}
                         {(invoice.status === "draft" || invoice.status === "sent") && (
@@ -121,10 +127,10 @@ export function InvoicesTable() {
                             variant="outline"
                             size="sm"
                             onClick={() => cancelInvoice(invoice.id)}
-                            className="hover:bg-destructive/5 text-destructive border-destructive/20"
+                            className="hover:bg-destructive/5 text-destructive border-destructive/20 w-full sm:w-auto text-xs"
                           >
-                            <X className="w-3 h-3 mr-1" />
-                            Cancel
+                            <X className="w-3 h-3 sm:mr-1" />
+                            <span className="hidden sm:inline">Cancel</span>
                           </Button>
                         )}
                       </div>

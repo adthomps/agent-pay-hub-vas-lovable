@@ -51,7 +51,7 @@ export function AgentBox() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="e.g., 'Create invoice for $100 to jane@example.com' or 'List all pending invoices'"
-              className="min-h-[80px] resize-none"
+              className="min-h-[80px] resize-none touch-pan-y"
               disabled={loading}
             />
           </div>

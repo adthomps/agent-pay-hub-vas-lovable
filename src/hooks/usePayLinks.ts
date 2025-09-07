@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "./use-toast";
 
 export interface CreatePayLinkData {
@@ -18,6 +18,8 @@ export interface PayLink {
 
 export function usePayLinks() {
   const [creating, setCreating] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [payLinks, setPayLinks] = useState<PayLink[]>([]);
   const [lastCreatedLink, setLastCreatedLink] = useState<PayLink | null>(null);
   const { toast } = useToast();
 
@@ -64,9 +66,56 @@ export function usePayLinks() {
     }
   };
 
+  const fetchPayLinks = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/links");
+      if (response.ok) {
+        const result = await response.json();
+        setPayLinks(result);
+      } else {
+        throw new Error("Failed to fetch pay links");
+      }
+    } catch (error) {
+      // Mock response for demo
+      const mockLinks: PayLink[] = [
+        {
+          id: "link_1",
+          url: "https://pay.example.com/link_1",
+          amount: 100,
+          currency: "USD",
+          memo: "Sample payment link",
+          createdAt: new Date(Date.now() - 86400000).toISOString(),
+        },
+        {
+          id: "link_2", 
+          url: "https://pay.example.com/link_2",
+          amount: 250,
+          currency: "EUR",
+          memo: "Another payment link",
+          createdAt: new Date(Date.now() - 172800000).toISOString(),
+        },
+      ];
+      setPayLinks(mockLinks);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshPayLinks = () => {
+    fetchPayLinks();
+  };
+
+  useEffect(() => {
+    fetchPayLinks();
+  }, []);
+
   return {
     createPayLink,
     creating,
+    loading,
+    payLinks,
     lastCreatedLink,
+    refreshPayLinks,
   };
 }

@@ -1,5 +1,6 @@
 import { AgentBox } from "@/components/AgentBox";
 import { InvoicesTable } from "@/components/InvoicesTable";
+import { PayLinksTable } from "@/components/PayLinksTable";
 import { CreateInvoiceForm } from "@/components/CreateInvoiceForm";
 import { CreatePayLinkForm } from "@/components/CreatePayLinkForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -45,9 +46,10 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Right Column - Invoices Table */}
+          {/* Right Column - Tables */}
           <div className="space-y-6 order-1 xl:order-2">
             <InvoicesTable />
+            <PayLinksTable />
           </div>
         </div>
       </main>

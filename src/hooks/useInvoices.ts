@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "./use-toast";
+import { useApiMode } from "./useApiMode";
 
 export interface Invoice {
   id: string;
@@ -26,6 +27,7 @@ export function useInvoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { isDemoMode } = useApiMode();
 
   const fetchInvoices = async () => {
     setLoading(true);
@@ -35,7 +37,38 @@ export function useInvoices() {
         const data = await response.json();
         setInvoices(data);
       } else {
-        // Show mock data if API is not available
+        if (isDemoMode) {
+          // Show mock data if API is not available
+          setInvoices([
+            {
+              id: "inv_001",
+              amount: 100.00,
+              currency: "USD",
+              email: "jane@example.com",
+              name: "Jane Doe",
+              memo: "Consulting services",
+              status: "sent",
+              dueDate: "2024-02-15",
+              createdAt: "2024-01-15"
+            },
+            {
+              id: "inv_002",
+              amount: 250.00,
+              currency: "USD",
+              email: "john@company.com",
+              memo: "Software license",
+              status: "draft",
+              dueDate: "2024-02-20",
+              createdAt: "2024-01-16"
+            }
+          ]);
+        } else {
+          throw new Error("Failed to fetch invoices");
+        }
+      }
+    } catch (error) {
+      if (isDemoMode) {
+        // Show mock data in demo mode
         setInvoices([
           {
             id: "inv_001",
@@ -59,14 +92,18 @@ export function useInvoices() {
             createdAt: "2024-01-16"
           }
         ]);
+        toast({
+          title: "Demo Mode",
+          description: "Invoice API not available, showing mock data",
+        });
+      } else {
+        console.error("Failed to fetch invoices:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch invoices",
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      console.error("Failed to fetch invoices:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch invoices. Showing mock data.",
-        variant: "destructive",
-      });
     } finally {
       setLoading(false);
     }
@@ -92,12 +129,33 @@ export function useInvoices() {
         throw new Error("Failed to create invoice");
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create invoice",
-        variant: "destructive",
-      });
-      throw error;
+      if (isDemoMode) {
+        // Mock invoice creation in demo mode
+        const mockInvoice: Invoice = {
+          id: `inv_${Date.now()}`,
+          amount: data.amount,
+          currency: data.currency,
+          email: data.email,
+          name: data.name,
+          memo: data.memo,
+          status: "draft",
+          dueDate: new Date(Date.now() + (data.dueDays || 30) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          createdAt: new Date().toISOString().split('T')[0],
+        };
+        setInvoices(prev => [mockInvoice, ...prev]);
+        toast({
+          title: "Demo Mode",
+          description: "Invoice API not available, created mock invoice",
+        });
+        return mockInvoice;
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create invoice",
+          variant: "destructive",
+        });
+        throw error;
+      }
     }
   };
 
@@ -119,11 +177,22 @@ export function useInvoices() {
         throw new Error("Failed to send invoice");
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send invoice",
-        variant: "destructive",
-      });
+      if (isDemoMode) {
+        // Mock send in demo mode
+        setInvoices(prev =>
+          prev.map(inv => inv.id === id ? { ...inv, status: "sent" as const } : inv)
+        );
+        toast({
+          title: "Demo Mode",
+          description: "Invoice API not available, marked as sent",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to send invoice",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -145,11 +214,22 @@ export function useInvoices() {
         throw new Error("Failed to cancel invoice");
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to cancel invoice",
-        variant: "destructive",
-      });
+      if (isDemoMode) {
+        // Mock cancel in demo mode
+        setInvoices(prev =>
+          prev.map(inv => inv.id === id ? { ...inv, status: "cancelled" as const } : inv)
+        );
+        toast({
+          title: "Demo Mode",
+          description: "Invoice API not available, marked as cancelled",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to cancel invoice",
+          variant: "destructive",
+        });
+      }
     }
   };
 

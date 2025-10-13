@@ -4,7 +4,6 @@ import { PayLinksTable } from "@/components/PayLinksTable";
 import { CreateInvoiceForm } from "@/components/CreateInvoiceForm";
 import { CreatePayLinkForm } from "@/components/CreatePayLinkForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ApiModeToggle } from "@/components/ApiModeToggle";
 
 const Index = () => {
   return (
@@ -27,7 +26,6 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <ApiModeToggle />
               <ThemeToggle />
             </div>
           </div>

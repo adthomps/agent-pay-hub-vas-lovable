@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useToast } from "./use-toast";
-import { useApiMode } from "./useApiMode";
 
 export interface AgentRequest {
   tool?: string;
@@ -19,7 +18,6 @@ export function useAgent() {
   const [loading, setLoading] = useState(false);
   const [lastResponse, setLastResponse] = useState<AgentResponse | null>(null);
   const { toast } = useToast();
-  const { isDemoMode } = useApiMode();
 
   const askAgent = async (request: AgentRequest): Promise<AgentResponse | null> => {
     setLoading(true);
@@ -44,36 +42,12 @@ export function useAgent() {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      
-      if (isDemoMode) {
-        // Mock response for demo purposes
-        const mockResponse: AgentResponse = {
-          tool: request.tool || "auto",
-          result: {
-            message: `Processed: "${request.query}"`,
-            tool: request.tool || "auto-detected",
-            args: request.args || {},
-            demo: true
-          },
-          success: true,
-        };
-        
-        setLastResponse(mockResponse);
-        toast({
-          title: "Demo Mode",
-          description: "Agent API not available, showing mock response",
-          variant: "default",
-        });
-        
-        return mockResponse;
-      } else {
-        toast({
-          title: "API Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        return null;
-      }
+      toast({
+        title: "API Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      return null;
     } finally {
       setLoading(false);
     }

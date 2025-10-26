@@ -26,33 +26,31 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <HealthCheckButton />
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6 pb-safe">
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {/* Left Column - Forms and Agent */}
-          <div className="space-y-6 order-2 xl:order-1">
-            <AgentBox />
-            
-            {/* Mobile: Show forms in a more compact layout */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-6">
-              <CreateInvoiceForm />
-              <CreatePayLinkForm />
-            </div>
-          </div>
+      <main className="container mx-auto px-4 py-6 pb-safe space-y-6">
+        {/* Row 1: AI Agent Assistant */}
+        <AgentBox />
 
-          {/* Right Column - Tables */}
-          <div className="space-y-6 order-1 xl:order-2">
-            <InvoicesTable />
-            <PayLinksTable />
-          </div>
+        {/* Row 2: Create Forms */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <CreateInvoiceForm />
+          <CreatePayLinkForm />
+        </div>
+
+        {/* Row 3: Data Tables */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <InvoicesTable />
+          <PayLinksTable />
+        </div>
+
+        {/* Row 4: Diagnostics */}
+        <div className="flex justify-center">
+          <HealthCheckButton />
         </div>
       </main>
     </div>

@@ -21,29 +21,37 @@ export function useAgent() {
 
   const askAgent = async (request: AgentRequest): Promise<AgentResponse | null> => {
     setLoading(true);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
     try {
-      const response = await fetch("/api/agent/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(request),
-      });
+      // Mock response based on query
+      const mockResponse: AgentResponse = {
+        tool: request.tool || "auto-detect",
+        success: true,
+        result: {
+          message: "Demo mode: This is a simulated AI response",
+          query: request.query,
+          action: "Successfully processed your request",
+          data: {
+            invoicesCreated: Math.floor(Math.random() * 3),
+            linksGenerated: Math.floor(Math.random() * 2),
+            timestamp: new Date().toISOString(),
+          }
+        }
+      };
 
-      if (response.ok) {
-        const result = await response.json();
-        setLastResponse(result);
-        toast({
-          title: "Agent Response",
-          description: `Successfully executed ${result.tool}`,
-        });
-        return result;
-      } else {
-        const error = await response.text();
-        throw new Error(error);
-      }
+      setLastResponse(mockResponse);
+      toast({
+        title: "Agent Response",
+        description: `Successfully executed ${mockResponse.tool}`,
+      });
+      return mockResponse;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       toast({
-        title: "API Error",
+        title: "Demo Error",
         description: errorMessage,
         variant: "destructive",
       });

@@ -1,6 +1,25 @@
 import { useState, useEffect } from "react";
 import { useToast } from "./use-toast";
 
+// Mock data generator
+const generateMockInvoices = (): Invoice[] => {
+  const statuses: Invoice["status"][] = ["draft", "sent", "paid", "cancelled"];
+  const emails = ["customer@example.com", "client@business.com", "user@test.com", "buyer@company.com"];
+  const names = ["John Doe", "Jane Smith", "Acme Corp", "Tech Solutions"];
+  
+  return Array.from({ length: 12 }, (_, i) => ({
+    id: `INV-${String(i + 1).padStart(4, "0")}`,
+    amount: Math.floor(Math.random() * 5000) + 100,
+    currency: "USD",
+    email: emails[i % emails.length],
+    name: i % 2 === 0 ? names[i % names.length] : undefined,
+    memo: i % 3 === 0 ? `Invoice for services #${1000 + i}` : undefined,
+    status: statuses[Math.floor(Math.random() * statuses.length)],
+    dueDate: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000).toISOString(),
+  }));
+};
+
 export interface Invoice {
   id: string;
   amount: number;
@@ -29,104 +48,90 @@ export function useInvoices() {
 
   const fetchInvoices = async () => {
     setLoading(true);
-    try {
-      const response = await fetch("/api/invoices");
-      if (response.ok) {
-        const data = await response.json();
-        setInvoices(data);
-      } else {
-        throw new Error("Failed to fetch invoices");
-      }
-    } catch (error) {
-      console.error("Failed to fetch invoices:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch invoices",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setInvoices(generateMockInvoices());
+    setLoading(false);
   };
 
   const createInvoice = async (data: CreateInvoiceData) => {
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     try {
-      const response = await fetch("/api/invoices", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+      const newInvoice: Invoice = {
+        id: `INV-${String(invoices.length + 1).padStart(4, "0")}`,
+        amount: data.amount,
+        currency: data.currency,
+        email: data.email,
+        name: data.name,
+        memo: data.memo,
+        status: "draft",
+        dueDate: new Date(Date.now() + (data.dueDays || 30) * 24 * 60 * 60 * 1000).toISOString(),
+        createdAt: new Date().toISOString(),
+      };
+      
+      setInvoices([newInvoice, ...invoices]);
+      toast({
+        title: "Success",
+        description: "Invoice created successfully",
       });
-
-      if (response.ok) {
-        const newInvoice = await response.json();
-        setInvoices(prev => [newInvoice, ...prev]);
-        toast({
-          title: "Success",
-          description: "Invoice created successfully",
-        });
-        return newInvoice;
-      } else {
-        throw new Error("Failed to create invoice");
-      }
+      setLoading(false);
+      return newInvoice;
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to create invoice";
       toast({
         title: "Error",
-        description: "Failed to create invoice",
+        description: errorMessage,
         variant: "destructive",
       });
+      setLoading(false);
       throw error;
     }
   };
 
   const sendInvoice = async (id: string) => {
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     try {
-      const response = await fetch(`/api/invoices/${id}/send`, {
-        method: "POST",
+      setInvoices(prev =>
+        prev.map(inv => inv.id === id ? { ...inv, status: "sent" as const } : inv)
+      );
+      toast({
+        title: "Success",
+        description: "Invoice sent successfully",
       });
-
-      if (response.ok) {
-        setInvoices(prev =>
-          prev.map(inv => inv.id === id ? { ...inv, status: "sent" as const } : inv)
-        );
-        toast({
-          title: "Success",
-          description: "Invoice sent successfully",
-        });
-      } else {
-        throw new Error("Failed to send invoice");
-      }
+      setLoading(false);
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to send invoice",
         variant: "destructive",
       });
+      setLoading(false);
     }
   };
 
   const cancelInvoice = async (id: string) => {
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     try {
-      const response = await fetch(`/api/invoices/${id}/cancel`, {
-        method: "POST",
+      setInvoices(prev =>
+        prev.map(inv => inv.id === id ? { ...inv, status: "cancelled" as const } : inv)
+      );
+      toast({
+        title: "Success",
+        description: "Invoice cancelled successfully",
       });
-
-      if (response.ok) {
-        setInvoices(prev =>
-          prev.map(inv => inv.id === id ? { ...inv, status: "cancelled" as const } : inv)
-        );
-        toast({
-          title: "Success",
-          description: "Invoice cancelled successfully",
-        });
-      } else {
-        throw new Error("Failed to cancel invoice");
-      }
+      setLoading(false);
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to cancel invoice",
         variant: "destructive",
       });
+      setLoading(false);
     }
   };
 

@@ -16,6 +16,9 @@ export function PayLinksTable() {
   const { payLinks, loading, refreshPayLinks } = usePayLinks();
   const { toast } = useToast();
 
+  // Show only the last 5 pay links
+  const recentPayLinks = payLinks.slice(0, 5);
+
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -40,8 +43,15 @@ export function PayLinksTable() {
     <Card className="shadow-card">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Pay-by-Links</CardTitle>
-          <Button 
+          <CardTitle className="text-lg font-semibold">
+            Recent Pay-by-Links
+            {payLinks.length > 0 && (
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                (Last {recentPayLinks.length} of {payLinks.length})
+              </span>
+            )}
+          </CardTitle>
+          <Button
             variant="outline" 
             size="sm"
             onClick={refreshPayLinks}
@@ -57,7 +67,7 @@ export function PayLinksTable() {
           <div className="flex items-center justify-center py-8">
             <div className="text-muted-foreground">Loading pay links...</div>
           </div>
-        ) : payLinks.length === 0 ? (
+        ) : recentPayLinks.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             No pay links found. Create your first pay link below.
           </div>
@@ -74,7 +84,7 @@ export function PayLinksTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {payLinks.map((link) => (
+                {recentPayLinks.map((link) => (
                   <TableRow key={link.id}>
                     <TableCell className="font-medium font-mono text-xs hidden sm:table-cell">
                       {link.id}

@@ -39,13 +39,23 @@ function StatusBadge({ status }: { status: Invoice["status"] }) {
 
 export function InvoicesTable() {
   const { invoices, loading, sendInvoice, cancelInvoice, refreshInvoices } = useInvoices();
+  
+  // Show only the last 5 invoices
+  const recentInvoices = invoices.slice(0, 5);
 
   return (
     <Card className="shadow-card">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Invoices</CardTitle>
-          <Button 
+          <CardTitle className="text-lg font-semibold">
+            Recent Invoices
+            {invoices.length > 0 && (
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                (Last {recentInvoices.length} of {invoices.length})
+              </span>
+            )}
+          </CardTitle>
+          <Button
             variant="outline" 
             size="sm"
             onClick={refreshInvoices}
@@ -61,7 +71,7 @@ export function InvoicesTable() {
           <div className="flex items-center justify-center py-8">
             <div className="text-muted-foreground">Loading invoices...</div>
           </div>
-        ) : invoices.length === 0 ? (
+        ) : recentInvoices.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             No invoices found. Create your first invoice below.
           </div>
@@ -79,7 +89,7 @@ export function InvoicesTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {invoices.map((invoice) => (
+                {recentInvoices.map((invoice) => (
                   <TableRow key={invoice.id}>
                     <TableCell className="font-medium font-mono text-xs hidden sm:table-cell">
                       {invoice.id}

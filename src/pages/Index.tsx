@@ -49,9 +49,7 @@ const Index = () => {
         </div>
 
         {/* Row 4: Diagnostics */}
-        <div className="flex justify-center">
-          <HealthCheckButton />
-        </div>
+        <HealthCheckButton />
       </main>
     </div>
   );

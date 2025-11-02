@@ -1,7 +1,14 @@
-import { RefreshCw, Send, X } from "lucide-react";
+import { RefreshCw, Send, X, MoreVertical, Edit, XCircle, Copy, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -42,6 +49,20 @@ export function InvoicesTable() {
   
   // Show only the last 5 invoices
   const recentInvoices = invoices.slice(0, 5);
+
+  const handleUpdateInvoice = (id: string) => {
+    // Placeholder for update functionality
+    console.log('Update invoice:', id);
+  };
+
+  const handleCopyPaymentLink = async (id: string) => {
+    const link = `${window.location.origin}/invoice/${id}`;
+    await navigator.clipboard.writeText(link);
+  };
+
+  const handleOpenPaymentForm = (id: string) => {
+    window.open(`/invoice/${id}`, '_blank');
+  };
 
   return (
     <Card className="shadow-card">
@@ -120,30 +141,48 @@ export function InvoicesTable() {
                       {new Date(invoice.dueDate).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1 sm:gap-2">
-                        {invoice.status === "draft" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => sendInvoice(invoice.id)}
-                            className="hover:bg-primary/5 w-full sm:w-auto text-xs"
-                          >
-                            <Send className="w-3 h-3 sm:mr-1" />
-                            <span className="hidden sm:inline">Send</span>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
-                        )}
-                        {(invoice.status === "draft" || invoice.status === "sent") && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => cancelInvoice(invoice.id)}
-                            className="hover:bg-destructive/5 text-destructive border-destructive/20 w-full sm:w-auto text-xs"
-                          >
-                            <X className="w-3 h-3 sm:mr-1" />
-                            <span className="hidden sm:inline">Cancel</span>
-                          </Button>
-                        )}
-                      </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          {invoice.status === "draft" && (
+                            <>
+                              <DropdownMenuItem onClick={() => sendInvoice(invoice.id)}>
+                                <Send className="mr-2 h-4 w-4" />
+                                Send
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                            </>
+                          )}
+                          <DropdownMenuItem onClick={() => handleUpdateInvoice(invoice.id)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Update
+                          </DropdownMenuItem>
+                          {(invoice.status === "draft" || invoice.status === "sent") && (
+                            <>
+                              <DropdownMenuItem 
+                                onClick={() => cancelInvoice(invoice.id)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <XCircle className="mr-2 h-4 w-4" />
+                                Cancel
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleCopyPaymentLink(invoice.id)}>
+                            <Copy className="mr-2 h-4 w-4" />
+                            Copy Payment Link
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenPaymentForm(invoice.id)}>
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            Open Payment Form
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}

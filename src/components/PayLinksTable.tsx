@@ -1,6 +1,14 @@
-import { RefreshCw, Copy, ExternalLink } from "lucide-react";
+import { RefreshCw, Copy, ExternalLink, MoreVertical } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -37,6 +45,14 @@ export function PayLinksTable() {
 
   const openLink = (url: string) => {
     window.open(url, "_blank");
+  };
+
+  const getPayLinkType = (memo: string): 'donation' | 'product' => {
+    const lowerMemo = memo?.toLowerCase() || '';
+    if (lowerMemo.includes('donation') || lowerMemo.includes('donate') || lowerMemo.includes('gift') || lowerMemo.includes('charity')) {
+      return 'donation';
+    }
+    return 'product';
   };
 
   return (
@@ -79,7 +95,8 @@ export function PayLinksTable() {
                   <TableHead className="hidden sm:table-cell">ID</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead className="hidden md:table-cell">Memo</TableHead>
-                  <TableHead className="hidden lg:table-cell">Created</TableHead>
+                  <TableHead className="hidden lg:table-cell">Type</TableHead>
+                  <TableHead className="hidden xl:table-cell">Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -100,30 +117,33 @@ export function PayLinksTable() {
                         {link.memo || "No memo"}
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs hidden lg:table-cell">
+                    <TableCell className="hidden lg:table-cell">
+                      <Badge variant={getPayLinkType(link.memo) === 'donation' ? 'secondary' : 'default'}>
+                        {getPayLinkType(link.memo)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs hidden xl:table-cell">
                       {new Date(link.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1 sm:gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyToClipboard(link.url)}
-                          className="hover:bg-primary/5 w-full sm:w-auto text-xs"
-                        >
-                          <Copy className="w-3 h-3 sm:mr-1" />
-                          <span className="hidden sm:inline">Copy</span>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openLink(link.url)}
-                          className="hover:bg-primary/5 w-full sm:w-auto text-xs"
-                        >
-                          <ExternalLink className="w-3 h-3 sm:mr-1" />
-                          <span className="hidden sm:inline">Open</span>
-                        </Button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem onClick={() => copyToClipboard(link.url)}>
+                            <Copy className="mr-2 h-4 w-4" />
+                            Copy Payment Link
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => openLink(link.url)}>
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            Open Payment Form
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}

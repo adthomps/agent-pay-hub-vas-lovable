@@ -44,6 +44,7 @@ export interface CreateInvoiceData {
 export function useInvoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(false);
+  const [lastCreatedInvoice, setLastCreatedInvoice] = useState<Invoice | null>(null);
   const { toast } = useToast();
 
   const fetchInvoices = async () => {
@@ -71,6 +72,7 @@ export function useInvoices() {
       };
       
       setInvoices([newInvoice, ...invoices]);
+      setLastCreatedInvoice(newInvoice);
       toast({
         title: "Success",
         description: "Invoice created successfully",
@@ -142,6 +144,7 @@ export function useInvoices() {
   return {
     invoices,
     loading,
+    lastCreatedInvoice,
     createInvoice,
     sendInvoice,
     cancelInvoice,

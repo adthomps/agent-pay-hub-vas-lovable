@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, ExternalLink, Copy, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -24,7 +24,8 @@ export function CreateInvoiceForm() {
     dueDays: 30,
   });
   const [submitting, setSubmitting] = useState(false);
-  const { createInvoice } = useInvoices();
+  const [copied, setCopied] = useState(false);
+  const { createInvoice, lastCreatedInvoice } = useInvoices();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,12 +59,22 @@ export function CreateInvoiceForm() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy:", error);
+    }
+  };
+
   return (
     <Card className="shadow-card">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Create Invoice</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -156,6 +167,57 @@ export function CreateInvoiceForm() {
             )}
           </Button>
         </form>
+
+        {lastCreatedInvoice && (
+          <div className="mt-6 p-4 bg-success/5 border border-success/20 rounded-lg">
+            <h4 className="font-medium text-success mb-2">Invoice Created!</h4>
+            <div className="space-y-3">
+              <div className="p-3 bg-background border rounded">
+                <div className="text-sm font-medium mb-1">Invoice ID</div>
+                <code className="text-sm font-mono">{lastCreatedInvoice.id}</code>
+              </div>
+              
+              <div className="flex items-center gap-2 p-2 bg-background border rounded">
+                <code className="flex-1 text-sm break-all">
+                  {`${window.location.origin}/invoice/${lastCreatedInvoice.id}`}
+                </code>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard(`${window.location.origin}/invoice/${lastCreatedInvoice.id}`)}
+                  className="shrink-0"
+                >
+                  {copied ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(`/invoice/${lastCreatedInvoice.id}`, "_blank")}
+                  className="flex-1"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Open Link
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard(`${window.location.origin}/invoice/${lastCreatedInvoice.id}`)}
+                  className="flex-1"
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  {copied ? "Copied!" : "Copy URL"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
